@@ -1,0 +1,69 @@
+syntax = "proto3";
+
+package user;
+
+option go_package = "proto/userpb";
+
+// Service definition
+service UserService {
+  rpc GetUser(GetUserRequest) returns (GetUserResponse);
+  rpc CreateUser(CreateUserRequest) returns (CreateUserResponse);
+  rpc GetAllUsers(GetAllUsersRequest) returns (GetAllUsersResponse);
+  rpc UpdateUserByID(UpdateUserRequest) returns (UpdateUserResponse);
+  rpc DeleteUserByID(DeleteUserRequest) returns (DeleteUserResponse);
+}
+
+// Request and response messages
+
+message GetUserRequest {
+  string id = 1;
+}
+
+message GetUserResponse {
+  string id = 1;
+  string name = 2;
+  string email = 3;
+}
+
+message CreateUserRequest {
+  string name = 1;
+  string email = 2;
+  string password = 3;
+}
+
+message CreateUserResponse {
+  string id = 1;
+}
+
+message GetAllUsersRequest {}
+
+message GetAllUsersResponse {
+  repeated User users = 1;
+}
+
+message UpdateUserRequest {
+  string id = 1;
+  string name = 2;
+  string email = 3;
+}
+
+message UpdateUserResponse {
+  string id = 1;
+  string name = 2;
+  string email = 3;
+}
+
+message DeleteUserRequest {
+  string id = 1;
+}
+
+message DeleteUserResponse {
+  bool success = 1;
+}
+
+// Shared structure
+message User {
+  string id = 1;
+  string name = 2;
+  string email = 3;
+}

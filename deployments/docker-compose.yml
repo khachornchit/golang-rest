@@ -1,0 +1,30 @@
+services:
+  golang-mongo:
+    image: mongo:latest
+    container_name: golang-mongo_repository
+    ports:
+      - "7001:27017"
+    volumes:
+      - mongo_data:/data/db
+    networks:
+      - golang-net
+
+  golang-app:
+    build:
+      context: ../
+      dockerfile: deployments/Dockerfile
+    container_name: golang-app
+    ports:
+      - "7002:7002"
+    env_file:
+      - ../configs/.env
+    depends_on:
+      - golang-mongo
+    networks:
+      - golang-net
+
+volumes:
+  mongo_data:
+
+networks:
+  golang-net:
