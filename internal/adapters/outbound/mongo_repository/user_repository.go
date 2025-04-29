@@ -2,6 +2,7 @@ package mongo_repository
 
 import (
 	"context"
+	"fmt"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
@@ -18,7 +19,22 @@ type UserRepository struct {
 }
 
 func NewUserRepository(collection *mongo.Collection) ports.UserRepositoryInterface {
-	return &UserRepository{collection: collection}
+	repository := &UserRepository{collection: collection}
+	if err := repository.EnsureIndexes(); err != nil {
+		log.Fatalf("could not create user repository: %v", err)
+	}
+
+	return repository
+}
+
+func (u UserRepository) EnsureIndexes() error {
+	indexModel := mongo.IndexModel{
+		Keys:    bson.M{"email": 1},
+		Options: options.Index().SetUnique(true),
+	}
+
+	_, err := u.collection.Indexes().CreateOne(context.TODO(), indexModel)
+	return err
 }
 
 func (u UserRepository) CreateUser(user *domain.User) error {
@@ -32,7 +48,11 @@ func (u UserRepository) CreateUser(user *domain.User) error {
 
 	_, err = u.collection.InsertOne(context.Background(), user)
 	if err != nil {
+		if mongo.IsDuplicateKeyError(err) {
+			return fmt.Errorf("%w: %s", "email already exists", user.Email)
+		}
 		log.Println("MongoDB insert error: ", err)
+		return err
 	}
 
 	return err

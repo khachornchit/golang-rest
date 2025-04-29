@@ -6,6 +6,7 @@ import (
 )
 
 type UserRepositoryInterface interface {
+	EnsureIndexes() error
 	CreateUser(user *domain.User) error
 	GetAllUsers() ([]domain.User, error)
 	GetUserByEmail(email string) (*domain.User, error)
